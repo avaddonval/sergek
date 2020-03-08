@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  DB-API:
+    image: postgres:alpine
+    volumes:
+      - db-api:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: db_api
+      POSTGRES_PASSWORD: postgres
+volumes:
+  db-api:
