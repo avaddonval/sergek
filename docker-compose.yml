@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  chat-api:
+    build: ./chat-api
+    depends_on:
+      - db-api
+      - rabbitmq
+    networks:
+      - app-network
+    ports:
+      - "3000:3000"
+  ws-api:
+    build: ./ws-api
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+    ports:
+      - "3001:3001"
+  db-api:
+    image: postgres:alpine
+    volumes:
+      - db-api:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: db_api
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - app-network
+  rabbitmq: 
+    image: rabbitmq:alpine
+    environment: 
+      RABBITMQ_DEFAULT_USER: test
+      RABBITMQ_DEFAULT_PASS: password
+    networks:
+      - app-network
+  webserver:
+    image: nginx:mainline-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+    depends_on:
+      - chat-api 
+      - ws-api
+    networks:
+      - app-network
+
+volumes:
+  db-api:
+networks:
+  app-network:
+    driver: bridge
