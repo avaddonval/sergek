@@ -1,12 +1,37 @@
 version: '3'
 
 services:
-  DB-API:
+  chat-api:
+    build: ./chat-api
+    volumes: 
+      - ./chat-api:/app
+    depends_on:
+      - db-api
+      - rabbitmq
+    command: yarn start:dev
+    ports:
+      - "3000:3000"
+  ws-api:
+    build: ./ws-api
+    volumes: 
+      - ./ws-api:/app
+    depends_on:
+      - rabbitmq
+    command: yarn start:dev
+    ports:
+      - "3001:3001"
+  db-api:
     image: postgres:alpine
     volumes:
       - db-api:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: db_api
       POSTGRES_PASSWORD: postgres
+  rabbitmq: 
+    image: rabbitmq:alpine
+    environment: 
+      RABBITMQ_DEFAULT_USER: test
+      RABBITMQ_DEFAULT_PASS: password
+
 volumes:
   db-api:
